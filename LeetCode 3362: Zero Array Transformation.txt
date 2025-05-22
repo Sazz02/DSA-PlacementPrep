@@ -1,0 +1,45 @@
+🧮 LeetCode 3362: Zero Array Transformation III
+📌 Problem Statement
+
+You are given an integer array nums of length n and a 2D array queries where queries[i] = [li, ri].
+
+Each query allows decrementing values within the range [li, ri] by at most 1, with each index allowed to be decremented independently.
+
+A Zero Array is an array where all elements are equal to 0.
+
+Goal:
+Return the maximum number of queries that can be removed, such that the remaining queries can still convert nums into a Zero Array.
+If it's not possible, return -1.
+🧠 Approach
+
+    ✅ Sort the queries based on their starting index to prioritize operations effectively.
+
+    ✅ Use a difference array (d) to track cumulative effects of decrements.
+
+    ✅ Use a min-heap (priority queue) to manage end-ranges of queries efficiently.
+
+    ✅ Iterate through nums, and at each index:
+
+        Apply the difference array updates.
+
+        Insert available queries into the heap.
+
+        Pop expired queries when necessary.
+
+        If the current element’s value > accumulated decrements, return -1.
+
+    ✅ The number of remaining valid queries equals len(queries) - number of removed queries.
+
+📈 Performance
+
+    Time Complexity: O(n log n + q log q)
+
+    Space Complexity: O(n + q)
+
+    Language: Python 3
+
+    Runtime: 283 ms
+
+    Memory: 62.29 MB
+
+    Beats: 55.89% (Runtime), 38.86% (Memory) on LeetCode
