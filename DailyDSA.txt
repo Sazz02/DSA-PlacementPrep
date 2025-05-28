@@ -1,0 +1,175 @@
+🧮 LeetCode 3362: Zero Array Transformation III
+📌 Problem Statement
+
+You are given an integer array nums of length n and a 2D array queries where queries[i] = [li, ri].
+
+Each query allows decrementing values within the range [li, ri] by at most 1, with each index allowed to be decremented independently.
+
+A Zero Array is an array where all elements are equal to 0.
+
+Goal:
+Return the maximum number of queries that can be removed, such that the remaining queries can still convert nums into a Zero Array.
+If it's not possible, return -1.
+🧠 Approach
+
+    ✅ Sort the queries based on their starting index to prioritize operations effectively.
+
+    ✅ Use a difference array (d) to track cumulative effects of decrements.
+
+    ✅ Use a min-heap (priority queue) to manage end-ranges of queries efficiently.
+
+    ✅ Iterate through nums, and at each index:
+
+        Apply the difference array updates.
+
+        Insert available queries into the heap.
+
+        Pop expired queries when necessary.
+
+        If the current element’s value > accumulated decrements, return -1.
+
+    ✅ The number of remaining valid queries equals len(queries) - number of removed queries.
+
+📈 Performance
+
+    Time Complexity: O(n log n + q log q)
+
+    Space Complexity: O(n + q)
+
+    Language: Python 3
+
+    Runtime: 283 ms
+
+    Memory: 62.29 MB
+
+    Beats: 55.89% (Runtime), 38.86% (Memory) on LeetCode
+
+
+
+Solution : 
+class Solution:
+    def maxRemoval(self, nums: List[int], queries: List[List[int]]) -> int:
+        queries.sort()
+        pq = []
+        d = [0] * (len(nums) + 1)
+        s = j = 0
+        for i, x in enumerate(nums):
+            s += d[i]
+            while j < len(queries) and queries[j][0] <= i:
+                heappush(pq, -queries[j][1])
+                j += 1
+            while s < x and pq and -pq[0] >= i:
+                s += 1
+                d[-heappop(pq) + 1] -= 1
+            if s < x:
+                return -1
+        return len(pq)
+
+
+
+# Leetcode 3372: Maximize the Number of Target Nodes After Connecting Trees I 🔗
+
+## 🔍 Problem Statement
+
+There exist two **undirected trees** with `n` and `m` nodes, labeled in ranges `[0, n - 1]` and `[0, m - 1]`, respectively.
+
+You are given two 2D integer arrays `edges1` and `edges2` of lengths `n - 1` and `m - 1`, where:
+
+- `edges1[i] = [aᵢ, bᵢ]` represents an edge in the first tree.
+- `edges2[i] = [uᵢ, vᵢ]` represents an edge in the second tree.
+
+You are also given an integer `k`.
+
+A node `u` is said to be **target** to node `v` if the number of edges on the shortest path from `u` to `v` is **≤ k`. A node is always target to itself.
+
+### 🎯 Goal:
+Return an array `answer` of `n` integers, where `answer[i]` is the **maximum number of target nodes** to node `i` in the first tree if it were connected to one node from the second tree.
+
+Note that the added edge is temporary and is removed before checking the next node.
+
+---
+
+## ✅ Example 1
+
+**Input:**
+edges1 = [[0,1],[0,2],[2,3],[2,4]]
+edges2 = [[0,1],[0,2],[0,3],[2,7],[1,4],[4,5],[4,6]]
+k = 2
+
+**Output:**
+[9, 7, 9, 8, 8]
+
+**Explanation:**
+- For i = 0, connect node 0 to node 0 in second tree → 9 target nodes.
+- For i = 1, connect node 1 to node 0 in second tree → 7 target nodes.
+- For i = 2, connect node 2 to node 4 in second tree → 9 target nodes.
+- For i = 3, connect node 3 to node 4 in second tree → 8 target nodes.
+- For i = 4, connect node 4 to node 4 in second tree → 8 target nodes.
+
+---
+
+## ✅ Example 2
+
+**Input:**
+edges1 = [[0,1],[0,2],[0,3],[0,4]]
+edges2 = [[0,1],[1,2],[2,3]]
+k = 1
+
+**Output:**
+[6, 3, 3, 3, 3]
+
+
+---
+
+## 💡 Approach
+
+- First, convert both `edges1` and `edges2` into **adjacency lists**.
+- Use a **DFS traversal** to count how many nodes can be reached from a given node within `k` steps in each tree.
+- For each node in the first tree:
+  - Try connecting it to every node in the second tree.
+  - Run DFS in both trees and record the number of reachable nodes within distance `k`.
+  - Track the **maximum** such number across all connections.
+- Return an array of these maximum values.
+
+---
+
+## 💻 Python Code
+
+```python
+class Solution:
+    def maxTargetNodes(
+        self, edges1: List[List[int]], edges2: List[List[int]], k: int
+    ) -> List[int]:
+        def build(edges: List[List[int]]) -> List[List[int]]:
+            n = len(edges) + 1
+            g = [[] for _ in range(n)]
+            for a, b in edges:
+                g[a].append(b)
+                g[b].append(a)
+            return g
+
+        def dfs(g: List[List[int]], a: int, fa: int, d: int) -> int:
+            if d < 0:
+                return 0
+            cnt = 1
+            for b in g[a]:
+                if b != fa:
+                    cnt += dfs(g, b, a, d - 1)
+            return cnt
+
+        g2 = build(edges2)
+        m = len(edges2) + 1
+        t = max(dfs(g2, i, -1, k - 1) for i in range(m))
+        g1 = build(edges1)
+        n = len(edges1) + 1
+        return [dfs(g1, i, -1, k) + t for i in range(n)]
+
+🧠 Concepts Used
+
+    Graph Traversal
+
+    Depth-First Search (DFS)
+
+    Tree Distance
+
+    Brute-force + Optimization
